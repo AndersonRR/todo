@@ -1,5 +1,4 @@
 import { StatusBar } from 'react-native';
-import { Text, View } from 'react-native';
 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/inter';
@@ -9,6 +8,7 @@ import theme from './src/theme';
 
 import { Loading } from './src/components/Loading';
 import { Home } from './src/screens/Home';
+import { RealmProvider } from './src/libs/realm/schemas';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
