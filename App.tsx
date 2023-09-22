@@ -8,7 +8,6 @@ import theme from './src/theme';
 
 import { Loading } from './src/components/Loading';
 import { Home } from './src/screens/Home';
-import { RealmProvider } from './src/libs/realm/schemas';
 
 export default function App() {
   const [fontsLoaded] = useFonts({

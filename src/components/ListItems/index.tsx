@@ -4,6 +4,7 @@ import theme from '../../theme';
 import { Item } from '../Item';
 import { Badge, Container, HeaderInfo, Status, StatusText } from './styles';
 import { useListStore } from '../../store/listStore';
+import { ListEmpty } from '../ListEmpty';
 
 type ListProps = {
   id: string;
@@ -17,16 +18,12 @@ export function ListItems() {
   const [numCompleted, setNumCompleted] = useState(0);
 
   const listStore = useListStore(state => state.items);
-  const toggleChecked = useListStore(state => state.toggleChecked);
-
-  function handleStatusItem(id: string) {
-    toggleChecked(id);
-  }
 
   useEffect(() => {
     const listUpdated = listStore.sort((a, b) => Number(b.id) - Number(a.id));
     setList(listUpdated);
   }, [listStore]);
+
   useEffect(() => {
     setNumCreated(list.filter(item => item.checked === false).length);
     setNumCompleted(list.filter(item => item.checked === true).length);
@@ -55,11 +52,9 @@ export function ListItems() {
             id={item.id}
             isChecked={item.checked}
             description={item.description}
-            onPress={() => {
-              handleStatusItem(item.id);
-            }}
           />
         )}
+        ListEmptyComponent={() => <ListEmpty />}
       />
     </Container>
   );
