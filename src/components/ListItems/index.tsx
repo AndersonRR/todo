@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { FlatList } from 'react-native';
+
 import theme from '../../theme';
 import { Item } from '../Item';
 import { Badge, Container, HeaderInfo, Status, StatusText } from './styles';
-import { useListStore } from '../../store/listStore';
 import { ListEmpty } from '../ListEmpty';
+
+import Animated, { Layout, SlideInLeft, SlideOutRight } from 'react-native-reanimated';
+import { useListStore } from '../../store/listStore';
 
 type ListProps = {
   id: string;
@@ -17,6 +19,7 @@ export function ListItems() {
   const [numCreated, setNumCreated] = useState(0);
   const [numCompleted, setNumCompleted] = useState(0);
 
+  const layout = Layout.springify();
   const listStore = useListStore(state => state.items);
 
   useEffect(() => {
@@ -25,7 +28,7 @@ export function ListItems() {
   }, [listStore]);
 
   useEffect(() => {
-    setNumCreated(list.filter(item => item.checked === false).length);
+    setNumCreated(list.length);
     setNumCompleted(list.filter(item => item.checked === true).length);
   }, [list]);
 
@@ -42,17 +45,23 @@ export function ListItems() {
         </Status>
       </HeaderInfo>
 
-      <FlatList
+      <Animated.FlatList
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 60 }}
+        itemLayoutAnimation={layout}
         data={list}
         keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <Item
-            id={item.id}
-            isChecked={item.checked}
-            description={item.description}
-          />
+        renderItem={({ item, index }) => (
+          <Animated.View
+            entering={SlideInLeft.delay(index * 100)}
+            exiting={SlideOutRight}
+          >
+            <Item
+              id={item.id}
+              isChecked={item.checked}
+              description={item.description}
+            />
+          </Animated.View>
         )}
         ListEmptyComponent={() => <ListEmpty />}
       />
