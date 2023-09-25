@@ -18,8 +18,10 @@ type Props = TouchableOpacityProps & {
 };
 
 export function Item({ isChecked = false, description, id, ...rest }: Props) {
-  const removeItem = useListStore(state => state.removeItem);
-  const toggleChecked = useListStore(state => state.toggleChecked);
+  const [removeItem, toggleChecked] = useListStore(state => [
+    state.removeItem,
+    state.toggleChecked,
+  ]);
 
   function handleStatusItem() {
     toggleChecked(id);

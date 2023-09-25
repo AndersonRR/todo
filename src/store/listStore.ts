@@ -19,7 +19,7 @@ const useListStore = create<ListState>()(
   persist(
     set => ({
       items: [],
-      addItem: item => set(state => ({ items: [...state.items, item] })),
+      addItem: item => set(state => ({ items: [item, ...state.items] })),
       removeItem: (id: string) =>
         set(state => ({ items: state.items.filter(item => item.id !== id) })),
       toggleChecked: (id: string) =>
