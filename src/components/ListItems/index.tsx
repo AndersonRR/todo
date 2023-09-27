@@ -5,12 +5,42 @@ import { Item } from '../Item';
 import { Badge, Container, HeaderInfo, Status, StatusText } from './styles';
 import { ListEmpty } from '../ListEmpty';
 
-import Animated, { Layout, SlideInLeft, SlideOutRight } from 'react-native-reanimated';
-import { useListStore } from '../../store/listStore';
+import Animated, { SlideInLeft, SlideOutRight } from 'react-native-reanimated';
+import { api } from '../../services/api';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { FlashList } from '@shopify/flash-list';
+
+type ListProps = {
+  id: string;
+  name: string;
+};
 
 export function ListItems() {
-  const layout = Layout.springify();
-  const listStore = useListStore(state => state.items);
+  const [listStore, setListStore] = useState<ListProps[]>([]);
+
+  const fetchPatients = async ({ pageParam = 1 }) => {
+    const response = await api.get(`getPatients/2?page=${pageParam}`);
+    return { data: response.data.data, nextPage: pageParam + 1 };
+  };
+
+  const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } =
+    useInfiniteQuery({
+      queryKey: ['patients'],
+      queryFn: fetchPatients,
+      getNextPageParam: (lastPage, pages) => lastPage.nextPage,
+    });
+
+  const loadNext = () => {
+    if (hasNextPage) {
+      fetchNextPage();
+    }
+  };
+
+  useEffect(() => {
+    if (data) {
+      setListStore(data?.pages.flatMap<ListProps>(page => page.data));
+    }
+  }, [data]);
 
   return (
     <Container>
@@ -21,30 +51,33 @@ export function ListItems() {
         </Status>
         <Status>
           <StatusText style={{ color: theme.COLORS.PURPLE }}>Concluídas</StatusText>
-          <Badge>{listStore.filter(item => item.checked === true).length}</Badge>
+          <Badge>{0}</Badge>
         </Status>
       </HeaderInfo>
 
-      <Animated.FlatList
+      <FlashList
+        onEndReachedThreshold={0.2}
+        onEndReached={loadNext}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 60 }}
-        itemLayoutAnimation={layout}
+        estimatedItemSize={100}
         data={listStore}
         keyExtractor={item => item.id}
-        renderItem={({ item, index }) => (
+        renderItem={({ item }) => (
           <Animated.View
-            entering={SlideInLeft.delay(index * 100)}
+            entering={SlideInLeft}
             exiting={SlideOutRight}
           >
             <Item
               id={item.id}
-              isChecked={item.checked}
-              description={item.description}
+              isChecked={true}
+              description={item.name}
             />
           </Animated.View>
         )}
         ListEmptyComponent={() => <ListEmpty />}
       />
+      {isFetchingNextPage && <Badge>Carregando ... </Badge>}
     </Container>
   );
 }

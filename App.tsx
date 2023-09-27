@@ -9,6 +9,10 @@ import theme from './src/theme';
 import { Loading } from './src/components/Loading';
 import { Home } from './src/screens/Home';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
+
 export default function App() {
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
@@ -23,7 +27,9 @@ export default function App() {
         translucent
       />
       <SafeAreaProvider style={{ flex: 1, backgroundColor: theme.COLORS.GRAY_600 }}>
-        {fontsLoaded ? <Home /> : <Loading />}
+        <QueryClientProvider client={queryClient}>
+          {fontsLoaded ? <Home /> : <Loading />}
+        </QueryClientProvider>
       </SafeAreaProvider>
     </ThemeProvider>
   );
